@@ -1,0 +1,58 @@
+﻿server:
+  port: 8081
+  servlet:
+    session:
+      timeout: 8h
+      cookie:
+        http-only: true
+        same-site: lax
+
+spring:
+  application:
+    name: uav-usv-platform
+  profiles:
+    active: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  runtime:
+    ros-websocket-url: ${ROS_WEBSOCKET_URL:ws://127.0.0.1:8765/uav_usv}
+    heartbeat-timeout-seconds: 5
+    telemetry-stale-seconds: ${TELEMETRY_STALE_SECONDS:10}
+    telemetry-retention-days: 7
+    geo-origin:
+      enabled: ${GEO_ORIGIN_ENABLED:false}
+      latitude: ${GEO_ORIGIN_LATITUDE:0}
+      longitude: ${GEO_ORIGIN_LONGITUDE:0}
+      east-axis: ${GEO_ORIGIN_EAST_AXIS:X}
+      north-axis: ${GEO_ORIGIN_NORTH_AXIS:Z}
+  visual-sensor:
+    websocket-url: ${VISUAL_SENSOR_WEBSOCKET_URL:ws://127.0.0.1:8765/uav_usv}
+    separate-websocket-enabled: ${VISUAL_SENSOR_SEPARATE_WEBSOCKET_ENABLED:false}
+  integration:
+    token: ${PLATFORM_INTEGRATION_TOKEN}
+  control:
+    command-dispatch-mode: ${COMMAND_DISPATCH_MODE:ros-websocket}
+    command-ack-timeout-seconds: ${COMMAND_ACK_TIMEOUT_SECONDS:15}
+    wsl-distribution: ${WSL_DISTRIBUTION:Ubuntu22}
+    ros-script: ${ROS_RUNTIME_SCRIPT:F:/UAV_USV_Platform/scripts/uav-usv-runtime.sh}
+    unity-editor: ${UNITY_EDITOR_PATH:F:/Unity/Editors/2022.3.57f1/Editor/Unity.exe}
+    unity-project: ${UNITY_PROJECT_PATH:F:/Unity/Projects/unity_ws}

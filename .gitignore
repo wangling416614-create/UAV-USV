@@ -1,0 +1,41 @@
+# ROS 2 generated files
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Unity generated files
+unity/Library/
+unity/Logs/
+unity/Temp/
+unity/obj/
+unity/UserSettings/
+unity/*.csproj
+unity/*.sln
+unity/mono_crash.*
+unity/.runtime/
+
+# Frontend and backend build outputs
+platform/frontend/node_modules/
+platform/frontend/dist/
+platform/node_modules/
+platform/backend/target/
+
+# Local application configuration
+platform/backend/src/main/resources/application-local.yml
+platform/backend/src/main/resources/application-local.local-backup.yml
+.env
+.env.*
+!.env.example
+
+# Runtime and language caches
+.runtime/
+.logs/
+*.log
+*.pid
+__pycache__/
+*.py[cod]
+
+# IDE files
+.vscode/
+.idea/
+*.iml

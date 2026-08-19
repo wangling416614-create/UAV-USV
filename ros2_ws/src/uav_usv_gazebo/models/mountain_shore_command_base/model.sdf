@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sdf version="1.10">
+  <!-- Unity presentation geometry scale=0.18 -->
+  <!-- Numeric visual source: SimulationBootstrap.BuildShoreCommandBase. -->
+  <model name="mountain_shore_command_base">
+    <static>true</static>
+    <link name="base_link">
+      <collision name="foundation_collision">
+        <pose>0 0 0.09 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>5.04 3.6 0.18</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="foundation">
+        <pose>0 0 0.09 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>5.04 3.6 0.18</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.216 .2115 .198 1</ambient>
+          <diffuse>.48 .47 .44 1</diffuse>
+        </material>
+      </visual>
+      <collision name="building_collision">
+        <pose>0 0 0.756 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6 2.52 1.296</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="building">
+        <pose>0 0 0.756 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6 2.52 1.296</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.333 .315 .27 1</ambient>
+          <diffuse>.74 .70 .60 1</diffuse>
+        </material>
+      </visual>
+      <collision name="roof_collision">
+        <pose>0 0 1.44 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.96 2.88 0.09</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="roof">
+        <pose>0 0 1.44 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.96 2.88 0.09</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.072 .081 .09 1</ambient>
+          <diffuse>.16 .18 .20 1</diffuse>
+        </material>
+      </visual>
+      <visual name="front_windows">
+        <pose>1.8072 0 0.918 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0144 1.62 0.396</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.01575 .1035 .153 1</ambient>
+          <diffuse>.035 .23 .34 1</diffuse>
+        </material>
+      </visual>
+      <collision name="bridge_collision">
+        <pose>-4.32 0 -0.27 0 -.06 0</pose>
+        <geometry>
+          <box>
+            <size>9 0.9 0.09</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="bridge_to_pad">
+        <pose>-4.32 0 -0.27 0 -.06 0</pose>
+        <geometry>
+          <box>
+            <size>9 0.9 0.09</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.216 .2115 .198 1</ambient>
+          <diffuse>.48 .47 .44 1</diffuse>
+        </material>
+      </visual>
+      <visual name="bridge_rail_left">
+        <pose>-4.32 0.423 -0.117 0 -.06 0</pose>
+        <geometry>
+          <box>
+            <size>9 0.0216 0.216</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.441 .3375 .018 1</ambient>
+          <diffuse>.98 .75 .04 1</diffuse>
+        </material>
+      </visual>
+      <visual name="bridge_rail_right">
+        <pose>-4.32 -0.423 -0.117 0 -.06 0</pose>
+        <geometry>
+          <box>
+            <size>9 0.0216 0.216</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.441 .3375 .018 1</ambient>
+          <diffuse>.98 .75 .04 1</diffuse>
+        </material>
+      </visual>
+      <collision name="radar_tower_collision">
+        <pose>0.54 0 2.34 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.09</radius>
+            <length>1.8</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="radar_tower">
+        <pose>0.54 0 2.34 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.09</radius>
+            <length>1.8</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.144 .153 .1575 1</ambient>
+          <diffuse>.32 .34 .35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="radar_pedestal">
+        <pose>0.54 0 3.276 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.216</radius>
+            <length>0.09</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.144 .153 .1575 1</ambient>
+          <diffuse>.32 .34 .35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="radar_dish">
+        <pose>0.54 0 3.456 0 0 -.3839724354</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>0.342 0.0405 0.207</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>.144 .153 .1575 1</ambient>
+          <diffuse>.32 .34 .35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="antenna_mast">
+        <pose>-0.9 0.54 2.43 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0324</radius>
+            <length>1.8</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.144 .153 .1575 1</ambient>
+          <diffuse>.32 .34 .35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="generator">
+        <pose>-1.08 -0.9 1.638 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.684 0.468 0.324</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.072 .081 .09 1</ambient>
+          <diffuse>.16 .18 .20 1</diffuse>
+        </material>
+      </visual>
+      <visual name="equipment_console">
+        <pose>0.9 -0.864 1.62 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.54 0.27 0.288</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.144 .153 .1575 1</ambient>
+          <diffuse>.32 .34 .35 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

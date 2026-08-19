@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="Shore_Collision_Boundary">
+    <static>true</static>
+    <link name="boundary_link">
+      <!-- 四段外海边界只限制驶出地图，不覆盖可航行海面。 -->
+      <collision name="North_Shore_Collision">
+        <pose>0 448 3 0 0 0</pose>
+        <geometry><box><size>1050 8 8</size></box></geometry>
+      </collision>
+      <collision name="South_Shore_Collision">
+        <pose>0 -448 3 0 0 0</pose>
+        <geometry><box><size>1050 8 8</size></box></geometry>
+      </collision>
+      <collision name="East_Shore_Collision">
+        <pose>523 0 3 0 0 0</pose>
+        <geometry><box><size>8 900 8</size></box></geometry>
+      </collision>
+      <collision name="West_Shore_Collision">
+        <pose>-523 0 3 0 0 0</pose>
+        <geometry><box><size>8 900 8</size></box></geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

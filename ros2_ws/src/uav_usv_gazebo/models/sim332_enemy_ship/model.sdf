@@ -1,0 +1,305 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sdf version="1.10">
+  <!-- Unity presentation geometry scale=0.18 -->
+  <model name="sim332_enemy_ship">
+    <pose>0 0 0.09 0 0 0</pose>
+    <link name="hull">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>1100</mass>
+        <inertia>
+          <ixx>2900</ixx>
+          <iyy>21000</iyy>
+          <izz>23500</izz>
+        </inertia>
+      </inertial>
+      <!-- Geometry mirrors SimulationBootstrap.BuildEnemyShip exactly. -->
+      <collision name="lower_hull_collision">
+        <pose>-0.081 0 0.0684 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.736 0.882 0.171</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="upper_hull_collision">
+        <pose>-0.135 0 0.1656 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.61 0.972 0.1116</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="port_bow_collision">
+        <pose>1.305 0.225 0.1368 0 0 0.4</pose>
+        <geometry>
+          <box>
+            <size>0.45 0.099 0.2016</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="starboard_bow_collision">
+        <pose>1.305 -0.225 0.1368 0 0 -0.4</pose>
+        <geometry>
+          <box>
+            <size>0.45 0.099 0.2016</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="bridge_collision">
+        <pose>-0.405 0 0.4212 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.945 0.675 0.333</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="lower_hull">
+        <pose>-0.081 0 0.0684 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.736 0.882 0.171</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01575 0.0189 0.0225 1</ambient>
+          <diffuse>0.035 0.042 0.05 1</diffuse>
+          <specular>0.274 0.274 0.274 1</specular>
+        </material>
+      </visual>
+      <visual name="upper_hull">
+        <pose>-0.135 0 0.1656 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.61 0.972 0.1116</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.04725 0.05175 0.05625 1</ambient>
+          <diffuse>0.105 0.115 0.125 1</diffuse>
+          <specular>0.23 0.23 0.23 1</specular>
+        </material>
+      </visual>
+      <visual name="main_deck">
+        <pose>-0.162 0 0.2304 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.448 0.846 0.036</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.072 0.0765 0.081 1</ambient>
+          <diffuse>0.16 0.17 0.18 1</diffuse>
+          <specular>0.186 0.186 0.186 1</specular>
+        </material>
+      </visual>
+      <visual name="port_bow">
+        <pose>1.305 0.225 0.1368 0 0 0.4</pose>
+        <geometry>
+          <box>
+            <size>0.45 0.099 0.2016</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01575 0.0189 0.0225 1</ambient>
+          <diffuse>0.035 0.042 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="starboard_bow">
+        <pose>1.305 -0.225 0.1368 0 0 -0.4</pose>
+        <geometry>
+          <box>
+            <size>0.45 0.099 0.2016</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01575 0.0189 0.0225 1</ambient>
+          <diffuse>0.035 0.042 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="bridge">
+        <pose>-0.405 0 0.4212 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.945 0.675 0.333</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.099 0.1035 0.10575 1</ambient>
+          <diffuse>0.22 0.23 0.235 1</diffuse>
+          <specular>0.252 0.252 0.252 1</specular>
+        </material>
+      </visual>
+      <visual name="front_windows">
+        <pose>0.072 0 0.4644 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0144 0.567 0.1188</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01125 0.054 0.0765 1</ambient>
+          <diffuse>0.025 0.12 0.17 1</diffuse>
+          <specular>0.637 0.637 0.637 1</specular>
+        </material>
+      </visual>
+      <visual name="port_windows">
+        <pose>-0.387 0.342 0.4644 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.684 0.0126 0.1152</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01125 0.054 0.0765 1</ambient>
+          <diffuse>0.025 0.12 0.17 1</diffuse>
+          <specular>0.637 0.637 0.637 1</specular>
+        </material>
+      </visual>
+      <visual name="starboard_windows">
+        <pose>-0.387 -0.342 0.4644 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.684 0.0126 0.1152</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01125 0.054 0.0765 1</ambient>
+          <diffuse>0.025 0.12 0.17 1</diffuse>
+          <specular>0.637 0.637 0.637 1</specular>
+        </material>
+      </visual>
+      <visual name="bridge_roof">
+        <pose>-0.405 0 0.6084 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.053 0.756 0.0432</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01575 0.0189 0.0225 1</ambient>
+          <diffuse>0.035 0.042 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="aft_equipment">
+        <pose>-0.981 0 0.315 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.243 0.468 0.1296</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.04725 0.05175 0.05625 1</ambient>
+          <diffuse>0.105 0.115 0.125 1</diffuse>
+        </material>
+      </visual>
+      <visual name="fore_equipment">
+        <pose>0.405 0 0.279 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.198 0.306 0.0684</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.04725 0.05175 0.05625 1</ambient>
+          <diffuse>0.105 0.115 0.125 1</diffuse>
+        </material>
+      </visual>
+      <visual name="mast">
+        <pose>-0.459 0 0.8496 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0234</radius>
+            <length>0.459</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.153 0.1575 0.1575 1</ambient>
+          <diffuse>0.34 0.35 0.35 1</diffuse>
+          <specular>0.241 0.241 0.241 1</specular>
+        </material>
+      </visual>
+      <visual name="radar_bar">
+        <pose>-0.459 0 1.053 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.477 0.036 0.0252</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.153 0.1575 0.1575 1</ambient>
+          <diffuse>0.34 0.35 0.35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="radar_dome">
+        <pose>-0.225 0 0.729 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0504</radius>
+            <length>0.054</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.153 0.1575 0.1575 1</ambient>
+          <diffuse>0.34 0.35 0.35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="port_rub_rail">
+        <pose>-0.054 0.4896 0.1656 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.304 0.0144 0.0576</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.153 0.1575 0.1575 1</ambient>
+          <diffuse>0.34 0.35 0.35 1</diffuse>
+        </material>
+      </visual>
+      <visual name="starboard_rub_rail">
+        <pose>-0.054 -0.4896 0.1656 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.304 0.0144 0.0576</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.153 0.1575 0.1575 1</ambient>
+          <diffuse>0.34 0.35 0.35 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <plugin filename="libBoatWaveFollower.so" name="gz::sim::systems::BoatWaveFollower">
+      <mean_z>0.1224</mean_z>
+      <heave_amplitude>0.0108</heave_amplitude>
+      <roll_amplitude>0.025</roll_amplitude>
+      <pitch_amplitude>0.02</pitch_amplitude>
+      <primary_frequency>0.9</primary_frequency>
+      <secondary_frequency>1.35</secondary_frequency>
+      <wave_number_x>0.24</wave_number_x>
+      <wave_number_y>0.17</wave_number_y>
+      <velocity_topic>cmd_vel</velocity_topic>
+    </plugin>
+    <plugin filename="libRandomVesselMotion.so" name="gz::sim::systems::RandomVesselMotion">
+      <command_topic>cmd_vel</command_topic>
+      <seed>332</seed>
+      <min_speed>0.063</min_speed>
+      <max_speed>0.207</max_speed>
+      <min_cruise_seconds>5</min_cruise_seconds>
+      <max_cruise_seconds>14</max_cruise_seconds>
+      <min_stop_seconds>2</min_stop_seconds>
+      <max_stop_seconds>6</max_stop_seconds>
+      <stop_probability>0.28</stop_probability>
+      <max_heading_change>1.75</max_heading_change>
+      <turn_rate>0.22</turn_rate>
+      <!-- Keep random motion in the open-water basin, not around the
+           island-centred world origin. -->
+      <operating_center_x>-14.4</operating_center_x>
+      <operating_center_y>-80</operating_center_y>
+      <operating_radius>22</operating_radius>
+      <boundary_margin>4</boundary_margin>
+      <enable_topic>/model/enemy_ship/motion_enable</enable_topic>
+      <start_enabled>false</start_enabled>
+    </plugin>
+  </model>
+</sdf>

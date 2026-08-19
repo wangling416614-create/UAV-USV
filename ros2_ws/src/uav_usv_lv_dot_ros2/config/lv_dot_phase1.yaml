@@ -1,0 +1,43 @@
+/**:
+  ros__parameters:
+    output_frame: map
+    tf_timeout_seconds: 0.1
+    diagnostics_period_seconds: 1.0
+    input_min_range: 0.5
+    input_max_range: 20.0
+    input_min_z: -1.75
+    input_max_z: 4.0
+    input_voxel_size: 0.04
+    crop_self: true
+    self_bounds: [-4.3, 2.5, -1.8, 1.8, -2.4, 0.35]
+    local_range_x: 10.0
+    local_range_y: 10.0
+    ground_height: 0.22
+    roof_height: 6.0
+    downsample_threshold: 12000
+    adaptive_voxel_initial_size: 0.1
+    gaussian_downsample_sigma: 16.0
+    random_seed: 1
+    # Kept as the upstream squared-distance threshold, not a Euclidean radius.
+    lidar_dbscan_epsilon: 0.65
+    lidar_dbscan_min_points: 3
+    maximum_object_size: [30.0, 15.0, 12.0]
+    # Accepted LV-DOT tracking parameters from LV_DOT_TUNING_REPORT.md.
+    tracking_max_match_range: 2.0
+    tracking_max_size_difference: 8.0
+    tracking_feature_weights: [3.0, 3.0, 0.1, 0.5, 0.5, 0.05, 0.0, 0.0, 0.0]
+    tracking_history_size: 100
+    tracking_fix_size_history_threshold: 10
+    tracking_fix_size_dimension_threshold: 0.4
+    tracking_kalman_averaging_frames: 3
+    tracking_confirmation_hits: 3
+    tracking_maximum_missed_frames: 5
+    kalman_filter_parameters: [0.25, 0.01, 0.05, 0.05, 0.04, 0.3, 0.6]
+    # Accepted dynamic parameters from LV_DOT_TUNING_REPORT.md.
+    frame_skip: 2
+    dynamic_velocity_threshold: 0.05
+    dynamic_voting_threshold: 0.15
+    frames_force_dynamic: 3
+    frames_force_dynamic_check_range: 12
+    dynamic_consistency_threshold: 2
+    dynamic_history_size: 100

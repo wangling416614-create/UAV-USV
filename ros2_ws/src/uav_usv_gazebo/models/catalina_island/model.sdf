@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sdf version="1.9">
+  <!-- Unity presentation geometry scale=0.18 -->
+  <model name="catalina_island">
+    <static>true</static>
+    <link name="terrain_link">
+      <!-- Catalina 岛屿卫星地形 -->
+      <visual name="terrain_visual">
+        <cast_shadows>true</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>meshes/scene.gltf</uri>
+            <!--
+              原模型约 41.6km × 35.5km。
+              Unity 与 Gazebo 共用 0.024 原始 mesh 缩放。
+            -->
+            <scale>0.00432 0.00432 0.00432</scale>
+          </mesh>
+        </geometry>
+      </visual>
+      <!--
+        DART/ODE cannot safely consume the glTF directly as a collision mesh.
+        This generated OBJ contains the same land triangles in Gazebo Z-up
+        coordinates, with explicit one-to-one vertex normals required by DART.
+        Zero-height ocean triangles are omitted to avoid overlapping the ocean
+        plane collision.
+      -->
+      <collision name="terrain_collision">
+        <geometry>
+          <mesh>
+            <uri>meshes/terrain_collision.obj</uri>
+            <scale>0.00432 0.00432 0.00432</scale>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

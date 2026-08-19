@@ -1,0 +1,653 @@
+package com.uavusv.platform.module.mission.service.impl;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.uavusv.platform.common.api.PageResponse;
+import com.uavusv.platform.common.exception.BusinessException;
+import com.uavusv.platform.common.exception.ErrorCode;
+import com.uavusv.platform.module.device.entity.Device;
+import com.uavusv.platform.module.device.repository.DeviceRepository;
+import com.uavusv.platform.module.mission.dto.request.MissionDeviceBindingRequest;
+import com.uavusv.platform.module.mission.dto.request.MissionParameterRequest;
+import com.uavusv.platform.module.mission.dto.request.MissionSaveRequest;
+import com.uavusv.platform.module.mission.dto.response.MissionDetailResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionActionResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionDeviceResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionEventResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionParameterResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionResponse;
+import com.uavusv.platform.module.mission.entity.MissionEvent;
+import com.uavusv.platform.module.mission.entity.MissionEventLevel;
+import com.uavusv.platform.module.mission.entity.MissionEventType;
+import com.uavusv.platform.module.mission.entity.MissionRun;
+import com.uavusv.platform.module.mission.entity.MissionRunStatus;
+import com.uavusv.platform.module.mission.entity.MissionStage;
+import com.uavusv.platform.module.mission.entity.MissionStatus;
+import com.uavusv.platform.module.mission.entity.MissionTask;
+import com.uavusv.platform.module.mission.entity.MissionTaskDevice;
+import com.uavusv.platform.module.mission.entity.MissionTaskParameter;
+import com.uavusv.platform.module.mission.entity.MissionType;
+import com.uavusv.platform.module.mission.entity.MissionExecutionMode;
+import com.uavusv.platform.module.mission.dto.response.MissionSummaryResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionPreflightResponse;
+import com.uavusv.platform.module.mission.dto.response.MissionPreflightIssueResponse;
+import com.uavusv.platform.module.monitoring.repository.RuntimeDeviceStatusRepository;
+import com.uavusv.platform.module.monitoring.service.RuntimeStateService;
+import com.uavusv.platform.module.device.entity.DeviceStatus;
+import com.uavusv.platform.module.mission.repository.MissionEventRepository;
+import com.uavusv.platform.module.mission.repository.MissionRunRepository;
+import com.uavusv.platform.module.mission.repository.MissionTaskDeviceRepository;
+import com.uavusv.platform.module.mission.repository.MissionTaskParameterRepository;
+import com.uavusv.platform.module.mission.repository.MissionTaskRepository;
+import com.uavusv.platform.module.mission.service.MissionService;
+import com.uavusv.platform.module.runtimecontrol.entity.SimulationStatus;
+import com.uavusv.platform.module.runtimecontrol.entity.RuntimeScope;
+import com.uavusv.platform.module.runtimecontrol.dto.RuntimeCommandRequest;
+import com.uavusv.platform.module.runtimecontrol.dto.RuntimeCommandResponse;
+import com.uavusv.platform.module.runtimecontrol.entity.CommandType;
+import com.uavusv.platform.module.runtimecontrol.repository.SimulationSessionRepository;
+import com.uavusv.platform.module.runtimecontrol.service.RuntimeControlService;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional(readOnly = true)
+public class MissionServiceImpl implements MissionService {
+
+    private static final int MAX_PAGE_SIZE = 100;
+
+    private final MissionTaskRepository missionTaskRepository;
+    private final MissionTaskDeviceRepository missionTaskDeviceRepository;
+    private final MissionTaskParameterRepository missionTaskParameterRepository;
+    private final MissionEventRepository missionEventRepository;
+    private final MissionRunRepository missionRunRepository;
+    private final DeviceRepository deviceRepository;
+    private final SimulationSessionRepository simulationSessionRepository;
+    private final RuntimeControlService runtimeControlService;
+    private final RuntimeDeviceStatusRepository runtimeDeviceStatusRepository;
+    private final RuntimeStateService runtimeStateService;
+    private final ObjectMapper objectMapper;
+
+    public MissionServiceImpl(
+            MissionTaskRepository missionTaskRepository,
+            MissionTaskDeviceRepository missionTaskDeviceRepository,
+            MissionTaskParameterRepository missionTaskParameterRepository,
+            MissionEventRepository missionEventRepository,
+            MissionRunRepository missionRunRepository,
+            DeviceRepository deviceRepository,
+            SimulationSessionRepository simulationSessionRepository,
+            RuntimeControlService runtimeControlService,
+            RuntimeDeviceStatusRepository runtimeDeviceStatusRepository,
+            RuntimeStateService runtimeStateService,
+            ObjectMapper objectMapper
+    ) {
+        this.missionTaskRepository = missionTaskRepository;
+        this.missionTaskDeviceRepository = missionTaskDeviceRepository;
+        this.missionTaskParameterRepository = missionTaskParameterRepository;
+        this.missionEventRepository = missionEventRepository;
+        this.missionRunRepository = missionRunRepository;
+        this.deviceRepository = deviceRepository;
+        this.simulationSessionRepository = simulationSessionRepository;
+        this.runtimeControlService = runtimeControlService;
+        this.runtimeDeviceStatusRepository = runtimeDeviceStatusRepository;
+        this.runtimeStateService = runtimeStateService;
+        this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public PageResponse<MissionResponse> listMissions(
+            String keyword,
+            MissionType type,
+            MissionStatus status,
+            MissionExecutionMode executionMode,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                Math.max(page, 0),
+                Math.min(Math.max(size, 1), MAX_PAGE_SIZE),
+                Sort.by(Sort.Direction.DESC, "updatedAt")
+        );
+        Page<MissionResponse> responsePage = missionTaskRepository
+                .findAll(buildSpecification(keyword, type, status, executionMode), pageable)
+                .map(mission -> MissionResponse.from(
+                        mission,
+                        Math.toIntExact(missionTaskDeviceRepository.countByMissionId(mission.getId()))
+                ));
+        return PageResponse.from(responsePage);
+    }
+
+    @Override
+    public MissionDetailResponse getMission(Long id) {
+        return buildDetail(findMission(id));
+    }
+
+    @Override
+    public MissionSummaryResponse getSummary() {
+        return new MissionSummaryResponse(
+                missionTaskRepository.countByDeletedFalse(),
+                missionTaskRepository.countByDeletedFalseAndStatus(MissionStatus.READY),
+                missionTaskRepository.countByDeletedFalseAndStatusIn(EnumSet.of(MissionStatus.RUNNING, MissionStatus.PAUSED)),
+                missionTaskRepository.countByDeletedFalseAndStatusIn(EnumSet.of(MissionStatus.FAILED, MissionStatus.CANCELLED))
+        );
+    }
+
+    @Override
+    public MissionPreflightResponse preflight(Long id, String runtimeInstanceId) {
+        MissionTask mission = findMission(id);
+        List<MissionTaskDevice> bindings = missionTaskDeviceRepository.findAllByMissionIdOrderByAssignedAtAsc(id);
+        Map<Long, Device> devices = loadDevices(bindings);
+        List<MissionTaskDevice> required = bindings.stream().filter(MissionTaskDevice::isRequired).toList();
+        boolean rosOnline = runtimeStateService.isOnline(RuntimeStateService.ROS_CODE);
+        boolean unityOnline = runtimeStateService.isUnityOnline(RuntimeScope.MISSION_CENTER, runtimeInstanceId);
+        RuntimeStateService.UnityRuntimeSnapshot unityRuntime = runtimeStateService.getUnityRuntimeSnapshot(
+                RuntimeScope.MISSION_CENTER,
+                runtimeInstanceId
+        );
+        boolean unityControlsReady = unityRuntime != null && unityRuntime.controlsReady();
+        int unityRecognizedDeviceCount = unityRuntime == null ? 0 : unityRuntime.deviceCodes().size();
+        Long unityTrajectorySequence = unityRuntime == null ? null : unityRuntime.trajectorySequence();
+        Map<Long, DeviceStatus> runtimeStatuses = new HashMap<>();
+        runtimeDeviceStatusRepository.findAllByDeviceIdIn(required.stream().map(MissionTaskDevice::getDeviceId).toList())
+                .forEach(status -> runtimeStatuses.put(status.getDeviceId(), status.getStatus()));
+        List<String> offlineCodes = required.stream()
+                .filter(binding -> runtimeStatuses.getOrDefault(binding.getDeviceId(), DeviceStatus.UNKNOWN) != DeviceStatus.ONLINE)
+                .map(binding -> devices.get(binding.getDeviceId()))
+                .filter(java.util.Objects::nonNull)
+                .map(Device::getCode)
+                .toList();
+        boolean hasOpenRun = findOptionalActiveRun(id) != null;
+        boolean configurationComplete = mission.getExecutionMode() != null && !bindings.isEmpty();
+        List<MissionPreflightIssueResponse> issues = new ArrayList<>();
+        if (!configurationComplete) issues.add(new MissionPreflightIssueResponse("CONFIG_INCOMPLETE", "ERROR", "任务配置或设备编组不完整"));
+        if (mission.getStatus() != MissionStatus.READY) issues.add(new MissionPreflightIssueResponse("STATUS_NOT_READY", "ERROR", "当前任务状态不允许启动"));
+        if (!offlineCodes.isEmpty()) issues.add(new MissionPreflightIssueResponse(
+                "REQUIRED_DEVICE_OFFLINE", "ERROR", "必要设备离线：" + String.join(", ", offlineCodes)
+        ));
+        if (hasOpenRun) issues.add(new MissionPreflightIssueResponse("OPEN_RUN_EXISTS", "ERROR", "任务已存在开放的执行批次"));
+        if (!rosOnline) issues.add(new MissionPreflightIssueResponse("ROS_OFFLINE", "ERROR", "ROS 未在线"));
+        boolean canStart = issues.stream().noneMatch(issue -> "ERROR".equals(issue.level()));
+        return new MissionPreflightResponse(id, mission.getStatus(), mission.getExecutionMode(), configurationComplete,
+                required.size(), required.size() - offlineCodes.size(), offlineCodes, rosOnline, unityOnline,
+                unityControlsReady, unityRecognizedDeviceCount, unityTrajectorySequence,
+                hasOpenRun, canStart, issues, java.time.LocalDateTime.now());
+    }
+
+    @Override
+    public List<MissionEventResponse> getEvents(Long id, Long runId, MissionEventLevel level, int limit) {
+        findMission(id);
+        Pageable pageable = PageRequest.of(0, Math.min(Math.max(limit, 1), 100));
+        List<MissionEvent> events;
+        if (runId != null && level != null) events = missionEventRepository.findByMissionIdAndRunIdAndLevelOrderByOccurredAtDesc(id, runId, level, pageable);
+        else if (runId != null) events = missionEventRepository.findByMissionIdAndRunIdOrderByOccurredAtDesc(id, runId, pageable);
+        else if (level != null) events = missionEventRepository.findByMissionIdAndLevelOrderByOccurredAtDesc(id, level, pageable);
+        else events = missionEventRepository.findByMissionIdOrderByOccurredAtDesc(id, pageable);
+        return events.stream().map(MissionEventResponse::from).toList();
+    }
+
+    @Override
+    @Transactional
+    public MissionDetailResponse createMission(MissionSaveRequest request) {
+        if (missionTaskRepository.existsByCode(request.code())) {
+            throw new BusinessException(ErrorCode.DEVICE_CODE_EXISTS, "任务编号已存在");
+        }
+        ensureConfigurableStatus(request.status());
+        validateReadyComposition(request);
+        MissionTask mission = new MissionTask(request.code());
+        applyMissionFields(mission, request);
+        MissionTask saved = missionTaskRepository.save(mission);
+        replaceBindings(saved.getId(), request.devices());
+        replaceParameters(saved.getId(), request.parameters());
+        missionEventRepository.save(new MissionEvent(
+                saved.getId(),
+                MissionEventType.CONFIG,
+                "任务已创建",
+                "任务配置已写入平台，等待进入运行链路。",
+                "platform"
+        ));
+        return buildDetail(saved);
+    }
+
+    @Override
+    @Transactional
+    public MissionDetailResponse updateMission(Long id, MissionSaveRequest request) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "编辑任务", MissionStatus.DRAFT, MissionStatus.READY,
+                MissionStatus.COMPLETED, MissionStatus.FAILED, MissionStatus.CANCELLED);
+        ensureConfigurableStatus(request.status());
+        validateReadyComposition(request);
+        if (missionTaskRepository.existsByCodeAndIdNot(request.code(), id)) {
+            throw new BusinessException(ErrorCode.DEVICE_CODE_EXISTS, "任务编号已存在");
+        }
+        applyMissionFields(mission, request);
+        replaceBindings(mission.getId(), request.devices());
+        replaceParameters(mission.getId(), request.parameters());
+        missionEventRepository.save(new MissionEvent(
+                mission.getId(),
+                MissionEventType.CONFIG,
+                "任务配置已更新",
+                "任务基础信息、设备编组或参数已调整。",
+                "platform"
+        ));
+        return buildDetail(mission);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMission(Long id) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "删除任务", MissionStatus.DRAFT, MissionStatus.READY,
+                MissionStatus.COMPLETED, MissionStatus.FAILED, MissionStatus.CANCELLED);
+        mission.softDelete();
+        missionEventRepository.save(new MissionEvent(
+                mission.getId(),
+                MissionEventType.STATUS,
+                "任务已隐藏",
+                "任务从任务控制列表中隐藏，历史事件和编组记录保留。",
+                "platform"
+        ));
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse markReady(Long id, String operator, String source) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "进入待执行", MissionStatus.DRAFT, MissionStatus.COMPLETED,
+                MissionStatus.FAILED, MissionStatus.CANCELLED);
+        mission.prepareForRun();
+        recordStatusEvent(mission, "任务进入待执行", "任务配置已确认，可以进入协同围捕启动链路。", actionSource(source, operator));
+        return new MissionActionResponse(buildDetail(mission), null);
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse startMission(Long id, String operator, String source, String runtimeInstanceId) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "启动任务", MissionStatus.READY);
+        ensureNoOpenRun(mission.getId());
+        MissionStage stage = nextRunningStage(mission.getStage());
+        Long sessionId = currentSimulationSessionId();
+        MissionRun run = missionRunRepository.save(new MissionRun(
+                mission.getId(),
+                sessionId,
+                missionRunRepository.findMaxRunNo(mission.getId()) + 1,
+                stage,
+                operator,
+                runtimeInstanceId,
+                mission.getAlgorithmCode(),
+                mission.getAlgorithmVersion()
+        ));
+        recordStatusEvent(mission, run, "任务启动请求已提交", "已创建第 " + run.getRunNo() + " 次执行批次，等待控制指令确认。", actionSource(source, operator));
+        RuntimeCommandResponse command = issueMissionCommand(mission, run, CommandType.START_MISSION, operator, source, "启动任务：" + mission.getName());
+        return new MissionActionResponse(buildDetail(mission), command);
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse pauseMission(Long id, String operator, String source) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "暂停任务", MissionStatus.RUNNING);
+        MissionRun run = findActiveRun(mission.getId(), MissionRunStatus.RUNNING);
+        recordStatusEvent(mission, run, "暂停请求已提交", "等待控制指令确认，确认前任务保持运行状态。", actionSource(source, operator));
+        RuntimeCommandResponse command = issueMissionCommand(mission, run, CommandType.PAUSE_MISSION, operator, source, "暂停任务：" + mission.getName());
+        return new MissionActionResponse(buildDetail(mission), command);
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse resumeMission(Long id, String operator, String source) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "恢复任务", MissionStatus.PAUSED);
+        MissionRun run = findActiveRun(mission.getId(), MissionRunStatus.PAUSED);
+        recordStatusEvent(mission, run, "恢复请求已提交", "等待控制指令确认，确认前任务保持暂停状态。", actionSource(source, operator));
+        RuntimeCommandResponse command = issueMissionCommand(mission, run, CommandType.RESUME_MISSION, operator, source, "恢复任务：" + mission.getName());
+        return new MissionActionResponse(buildDetail(mission), command);
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse completeMission(Long id, String operator, String source) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "完成任务", MissionStatus.RUNNING, MissionStatus.PAUSED);
+        MissionRun run = findActiveRun(mission.getId(), MissionRunStatus.RUNNING, MissionRunStatus.PAUSED);
+        recordStatusEvent(mission, run, "完成请求已提交", "等待控制指令确认后进入评估阶段。", actionSource(source, operator));
+        RuntimeCommandResponse command = issueMissionCommand(mission, run, CommandType.COMPLETE_MISSION, operator, source, "完成任务：" + mission.getName());
+        return new MissionActionResponse(buildDetail(mission), command);
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse failMission(Long id, String operator, String source) {
+        MissionTask mission = findMission(id);
+        ensureStatus(mission, "标记异常", MissionStatus.RUNNING, MissionStatus.PAUSED);
+        MissionRun run = findActiveRun(mission.getId(), MissionRunStatus.RUNNING, MissionRunStatus.PAUSED);
+        recordStatusEvent(mission, run, MissionEventLevel.WARNING, "异常终止请求已提交", "等待控制指令确认后标记任务异常。", actionSource(source, operator));
+        RuntimeCommandResponse command = issueMissionCommand(mission, run, CommandType.FAIL_MISSION, operator, source, "异常终止任务：" + mission.getName());
+        return new MissionActionResponse(buildDetail(mission), command);
+    }
+
+    @Override
+    @Transactional
+    public MissionActionResponse cancelMission(Long id, String operator, String source) {
+        MissionTask mission = findMission(id);
+        ensureNotTerminal(mission, "取消任务");
+        MissionRun run = findOptionalActiveRun(mission.getId());
+        if (run == null) {
+            mission.updateStatus(MissionStatus.CANCELLED, MissionStage.EVALUATION);
+            recordStatusEvent(mission, "任务已取消", "任务尚未开始，无需向外部组件下发停止指令。", actionSource(source, operator));
+            return new MissionActionResponse(buildDetail(mission), null);
+        }
+        recordStatusEvent(mission, run, "取消请求已提交", "等待控制指令确认后取消当前任务。", actionSource(source, operator));
+        RuntimeCommandResponse command = issueMissionCommand(mission, run, CommandType.CANCEL_MISSION, operator, source, "取消任务：" + mission.getName());
+        return new MissionActionResponse(buildDetail(mission), command);
+    }
+
+    private void applyMissionFields(MissionTask mission, MissionSaveRequest request) {
+        mission.update(
+                request.code(),
+                request.name(),
+                request.type(),
+                request.executionMode(),
+                request.algorithmCode(),
+                request.algorithmVersion(),
+                request.status(),
+                MissionStage.PREPARE,
+                request.priority() == null ? 3 : request.priority(),
+                request.targetName(),
+                request.targetBehavior(),
+                request.missionArea(),
+                request.plannedStartAt(),
+                request.plannedEndAt(),
+                request.description()
+        );
+    }
+
+    private void ensureConfigurableStatus(MissionStatus status) {
+        if (status != MissionStatus.DRAFT && status != MissionStatus.READY) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "新建或编辑任务时，状态只能是草稿或待执行");
+        }
+    }
+
+    private void replaceBindings(Long missionId, List<MissionDeviceBindingRequest> devices) {
+        missionTaskDeviceRepository.deleteByMissionId(missionId);
+        if (devices == null || devices.isEmpty()) return;
+
+        List<MissionTaskDevice> bindings = devices.stream()
+                .map(binding -> {
+                    Device device = deviceRepository.findByIdAndDeletedFalse(binding.deviceId())
+                            .orElseThrow(() -> new BusinessException(ErrorCode.DEVICE_NOT_FOUND));
+                    return new MissionTaskDevice(
+                            missionId,
+                            device.getId(),
+                            binding.role(),
+                            StringUtils.hasText(binding.callSign()) ? binding.callSign() : device.getCode(),
+                            binding.required() == null || binding.required(),
+                            binding.notes()
+                    );
+                })
+                .toList();
+        missionTaskDeviceRepository.saveAll(bindings);
+    }
+
+    private void replaceParameters(Long missionId, List<MissionParameterRequest> parameters) {
+        missionTaskParameterRepository.deleteByMissionId(missionId);
+        if (parameters == null || parameters.isEmpty()) return;
+
+        missionTaskParameterRepository.saveAll(parameters.stream()
+                .map(parameter -> new MissionTaskParameter(
+                        missionId,
+                        parameter.key(),
+                        parameter.value(),
+                        parameter.unit(),
+                        parameter.description()
+                ))
+                .toList());
+    }
+
+    private MissionTask findMission(Long id) {
+        return missionTaskRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "任务不存在"));
+    }
+
+    private void ensureStatus(MissionTask mission, String action, MissionStatus... allowedStatuses) {
+        for (MissionStatus allowedStatus : allowedStatuses) {
+            if (mission.getStatus() == allowedStatus) {
+                return;
+            }
+        }
+        throw new BusinessException(
+                ErrorCode.BAD_REQUEST,
+                action + "失败：当前任务状态为 " + mission.getStatus()
+        );
+    }
+
+    private void ensureNotTerminal(MissionTask mission, String action) {
+        if (mission.getStatus() == MissionStatus.COMPLETED
+                || mission.getStatus() == MissionStatus.CANCELLED
+                || mission.getStatus() == MissionStatus.FAILED) {
+            throw new BusinessException(
+                    ErrorCode.BAD_REQUEST,
+                    action + "失败：任务已结束，不能继续变更状态"
+            );
+        }
+    }
+
+    private MissionStage nextRunningStage(MissionStage currentStage) {
+        if (currentStage == MissionStage.PREPARE) {
+            return MissionStage.TARGET_DETECTED;
+        }
+        if (currentStage == MissionStage.EVALUATION) {
+            return MissionStage.TRACKING;
+        }
+        return currentStage;
+    }
+
+    private void recordStatusEvent(MissionTask mission, String title, String message, String operator) {
+        recordStatusEvent(mission, null, MissionEventLevel.INFO, title, message, operator);
+    }
+
+    private void recordStatusEvent(MissionTask mission, MissionRun run, String title, String message, String operator) {
+        recordStatusEvent(mission, run, MissionEventLevel.INFO, title, message, operator);
+    }
+
+    private void recordStatusEvent(
+            MissionTask mission,
+            MissionRun run,
+            MissionEventLevel level,
+            String title,
+            String message,
+            String operator
+    ) {
+        missionEventRepository.save(new MissionEvent(
+                mission.getId(),
+                run == null ? null : run.getId(),
+                MissionEventType.STATUS,
+                mission.getStage(),
+                level,
+                title,
+                message,
+                StringUtils.hasText(operator) ? operator : "platform"
+        ));
+    }
+
+    private MissionRun findActiveRun(Long missionId, MissionRunStatus... statuses) {
+        return missionRunRepository.findFirstByMissionIdAndStatusInOrderByStartedAtDesc(
+                        missionId,
+                        EnumSet.copyOf(List.of(statuses))
+                )
+                .orElseThrow(() -> new BusinessException(ErrorCode.BAD_REQUEST, "任务执行记录不存在或状态不匹配"));
+    }
+
+    private MissionRun findOptionalActiveRun(Long missionId) {
+        return missionRunRepository.findFirstByMissionIdAndStatusInOrderByStartedAtDesc(
+                        missionId,
+                        EnumSet.of(MissionRunStatus.PENDING, MissionRunStatus.RUNNING, MissionRunStatus.PAUSED)
+                )
+                .orElse(null);
+    }
+
+    private void ensureNoOpenRun(Long missionId) {
+        if (findOptionalActiveRun(missionId) != null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "该任务已有待确认或运行中的执行批次");
+        }
+    }
+
+    private RuntimeCommandResponse issueMissionCommand(
+            MissionTask mission,
+            MissionRun run,
+            CommandType commandType,
+            String operator,
+            String source,
+            String detail
+    ) {
+        String normalizedSource = normalizeActionSource(source);
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("source", normalizedSource);
+        payload.put("algorithmCode", run.getAlgorithmCode());
+        payload.put("targetId", "ESCORT_GUARD".equalsIgnoreCase(run.getAlgorithmCode())
+                ? "friendly_ship"
+                : "enemy_ship");
+        if (StringUtils.hasText(mission.getTargetName())) {
+            payload.put("targetName", mission.getTargetName());
+        }
+        payload.put("missionId", mission.getId());
+        payload.put("runId", run.getId());
+        return runtimeControlService.issueCommand(
+                new RuntimeCommandRequest(
+                        commandType,
+                        run.getId(),
+                        null,
+                        payload.toString(),
+                        detail,
+                        RuntimeScope.MISSION_CENTER,
+                        run.getRuntimeInstanceId()
+                ),
+                operator
+        );
+    }
+
+    private void validateReadyComposition(MissionSaveRequest request) {
+        if (request.status() != MissionStatus.READY ||
+                (request.type() != MissionType.COOPERATIVE_ENCIRCLEMENT && request.type() != MissionType.COOPERATIVE_ESCORT)) return;
+        if (!List.of("GB_SFLA_CS", "ESCORT_GUARD").contains(request.algorithmCode())) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "不支持的任务算法：" + request.algorithmCode());
+        }
+        if (request.type() == MissionType.COOPERATIVE_ESCORT && !"ESCORT_GUARD".equals(request.algorithmCode())) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "护航任务必须使用护航守卫算法");
+        }
+        if (request.type() == MissionType.COOPERATIVE_ENCIRCLEMENT && "ESCORT_GUARD".equals(request.algorithmCode())) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "围捕任务不能使用护航守卫算法");
+        }
+        List<Long> ids = request.devices() == null ? List.of() : request.devices().stream()
+                .map(MissionDeviceBindingRequest::deviceId).distinct().toList();
+        List<Device> devices = deviceRepository.findAllById(ids);
+        long uavCount = devices.stream().filter(device -> device.getType() == com.uavusv.platform.module.device.entity.DeviceType.UAV).count();
+        long usvCount = devices.stream().filter(device -> device.getType() == com.uavusv.platform.module.device.entity.DeviceType.USV).count();
+        if (uavCount != 3 || usvCount != 3 || devices.size() != 6) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "算法任务必须且只能绑定 UAV-01~03 与 USV-01~03 共 6 台载具");
+        }
+    }
+
+    private String normalizeActionSource(String source) {
+        if ("MISSION_CONTROL".equalsIgnoreCase(source)) return "MISSION_CONTROL";
+        if ("SYSTEM_OVERVIEW".equalsIgnoreCase(source)) return "SYSTEM_OVERVIEW";
+        return "UNKNOWN";
+    }
+
+    private String actionSource(String source, String operator) {
+        String normalizedOperator = StringUtils.hasText(operator) ? operator : "platform";
+        return normalizeActionSource(source) + ":" + normalizedOperator;
+    }
+
+    private Long currentSimulationSessionId() {
+        return simulationSessionRepository.findFirstByStatusInOrderByCreatedAtDesc(EnumSet.of(
+                        SimulationStatus.STARTING,
+                        SimulationStatus.RUNNING,
+                        SimulationStatus.PARTIAL
+                ))
+                .map(session -> session.getId())
+                .orElse(null);
+    }
+
+    private MissionDetailResponse buildDetail(MissionTask mission) {
+        List<MissionTaskDevice> bindings = missionTaskDeviceRepository.findAllByMissionIdOrderByAssignedAtAsc(mission.getId());
+        Map<Long, Device> deviceMap = loadDevices(bindings);
+        List<MissionDeviceResponse> devices = bindings.stream()
+                .map(binding -> MissionDeviceResponse.from(binding, deviceMap.get(binding.getDeviceId())))
+                .toList();
+        List<MissionParameterResponse> parameters = missionTaskParameterRepository.findAllByMissionIdOrderByKeyAsc(mission.getId())
+                .stream()
+                .map(MissionParameterResponse::from)
+                .toList();
+        List<MissionEventResponse> events = missionEventRepository.findTop20ByMissionIdOrderByOccurredAtDesc(mission.getId())
+                .stream()
+                .map(MissionEventResponse::from)
+                .toList();
+        List<com.uavusv.platform.module.mission.dto.response.MissionRunResponse> runs = missionRunRepository
+                .findTop10ByMissionIdOrderByStartedAtDesc(mission.getId())
+                .stream()
+                .map(com.uavusv.platform.module.mission.dto.response.MissionRunResponse::from)
+                .toList();
+        return new MissionDetailResponse(
+                MissionResponse.from(mission, devices.size()),
+                devices,
+                parameters,
+                events,
+                runs.isEmpty() ? null : runs.get(0),
+                runs
+        );
+    }
+
+    private Map<Long, Device> loadDevices(List<MissionTaskDevice> bindings) {
+        if (bindings.isEmpty()) return Collections.emptyMap();
+        List<Long> ids = bindings.stream().map(MissionTaskDevice::getDeviceId).distinct().toList();
+        Map<Long, Device> result = new HashMap<>();
+        deviceRepository.findAllById(ids).forEach(device -> result.put(device.getId(), device));
+        return result;
+    }
+
+    private Specification<MissionTask> buildSpecification(String keyword, MissionType type, MissionStatus status, MissionExecutionMode executionMode) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.isFalse(root.get("deleted")));
+
+            if (StringUtils.hasText(keyword)) {
+                String pattern = "%" + keyword.trim().toLowerCase() + "%";
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("targetName")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("missionArea")), pattern)
+                ));
+            }
+
+            if (type != null) {
+                predicates.add(criteriaBuilder.equal(root.get("type"), type));
+            }
+
+            if (status != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), status));
+            }
+
+            if (executionMode != null) {
+                predicates.add(criteriaBuilder.equal(root.get("executionMode"), executionMode));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        };
+    }
+}

@@ -1,0 +1,246 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sdf version="1.10">
+  <!-- Product vehicle visuals restored to physical 1:1 scale -->
+  <!--
+    Geometry is kept in the same vehicle-local ENU frame as
+    SimulationBootstrap.BuildUsv in Unity:
+      x forward, y port, z up.
+    Unity renders vehicles outside the 0.18 environment root scale. Gazebo
+    therefore magnifies visuals by 1 / 0.18 = 5.555555556 so the on-screen
+    ratio to the friendly / enemy ships is identical to Unity.
+    Visual envelope: 8.333333 x 6.111111 x 3.333333 m.
+    Collision envelope matches RuntimeCollisionSafety: 1.50 x 1.10 x 0.54 m.
+    Sensors, inertia and control geometry remain at physical 1:1 scale.
+  -->
+  <model name="unity_usv_m1500">
+    <static>false</static>
+    <link name="hull">
+      <gravity>false</gravity>
+      <enable_wind>true</enable_wind>
+      <inertial>
+        <mass>35.0</mass>
+        <inertia>
+          <ixx>4.58</ixx>
+          <iyy>7.61</iyy>
+          <izz>10.09</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="vehicle_envelope">
+        <pose>0 0 0.27 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.50 1.10 0.54</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="port_pontoon_lower">
+        <pose>-0.1699999999 0.3900000001 0.01999999998 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.16 0.3000000001 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.025 0.035 0.045 1</ambient>
+          <diffuse>0.055 0.075 0.09 1</diffuse>
+        </material>
+      </visual>
+      <visual name="starboard_pontoon_lower">
+        <pose>-0.1699999999 -0.3900000001 0.01999999998 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.16 0.3000000001 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.025 0.035 0.045 1</ambient>
+          <diffuse>0.055 0.075 0.09 1</diffuse>
+        </material>
+      </visual>
+      <visual name="port_pontoon_bow">
+        <pose>0.58 0.3900000001 0.07000000002 0 1.5707963268 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.1499999999</radius>
+            <length>0.34</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>0.42 0.44 0.45 1</ambient>
+          <diffuse>0.84 0.87 0.88 1</diffuse>
+        </material>
+      </visual>
+      <visual name="starboard_pontoon_bow">
+        <pose>0.58 -0.3900000001 0.07000000002 0 1.5707963268 0</pose>
+        <geometry>
+          <cone>
+            <radius>0.1499999999</radius>
+            <length>0.34</length>
+          </cone>
+        </geometry>
+        <material>
+          <ambient>0.42 0.44 0.45 1</ambient>
+          <diffuse>0.84 0.87 0.88 1</diffuse>
+        </material>
+      </visual>
+      <visual name="port_pontoon_cap">
+        <pose>-0.1200000001 0.3900000001 0.11 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.25 0.32 0.07999999992</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.42 0.44 0.45 1</ambient>
+          <diffuse>0.84 0.87 0.88 1</diffuse>
+        </material>
+      </visual>
+      <visual name="starboard_pontoon_cap">
+        <pose>-0.1200000001 -0.3900000001 0.11 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.25 0.32 0.07999999992</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.42 0.44 0.45 1</ambient>
+          <diffuse>0.84 0.87 0.88 1</diffuse>
+        </material>
+      </visual>
+      <visual name="cross_deck">
+        <pose>-0.07999999992 0 0.1650000001 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.12 0.92 0.07000000002</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.08 0.09 0.095 1</ambient>
+          <diffuse>0.16 0.18 0.19 1</diffuse>
+        </material>
+      </visual>
+      <visual name="equipment_bay">
+        <pose>-0.1200000001 0 0.29 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.58 0.43 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.45 0.455 0.44 1</ambient>
+          <diffuse>0.90 0.91 0.88 1</diffuse>
+        </material>
+      </visual>
+      <visual name="equipment_lid">
+        <pose>-0.1200000001 0 0.405 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.6199999999 0.47 0.03499999992</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.43 0.018 0.012 1</ambient>
+          <diffuse>0.86 0.035 0.025 1</diffuse>
+        </material>
+      </visual>
+      <visual name="d435_camera">
+        <pose>0.1900000001 0 0.32 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.045 0.1499999999 0.05000000004</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.012 0.12 0.18 1</ambient>
+          <diffuse>0.025 0.25 0.38 1</diffuse>
+        </material>
+      </visual>
+      <visual name="jetson_enclosure">
+        <pose>-0.38 0 0.31 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.16 0.22 0.1000000001</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.08 0.09 0.095 1</ambient>
+          <diffuse>0.16 0.18 0.19 1</diffuse>
+        </material>
+      </visual>
+      <visual name="rtk_antenna">
+        <pose>-0.34 -0.13 0.4600000001 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.02750000004</radius>
+            <length>0.07999999992</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.08 0.09 0.095 1</ambient>
+          <diffuse>0.16 0.18 0.19 1</diffuse>
+        </material>
+      </visual>
+      <visual name="mid360">
+        <pose>-0.03000000006 0.13 0.4800000001 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.03749999994</radius>
+            <length>0.07999999992</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.43 0.018 0.012 1</ambient>
+          <diffuse>0.86 0.035 0.025 1</diffuse>
+        </material>
+      </visual>
+      <sensor name="front_camera" type="camera">
+        <pose>0.48 0 0.52 0 0 0</pose>
+        <update_rate>20</update_rate>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>320</width>
+            <height>180</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>200</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+      </sensor>
+      <sensor name="front_lidar" type="gpu_lidar">
+        <pose>-0.03 0.13 0.48 0 0 0</pose>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>361</samples>
+              <resolution>1</resolution>
+              <min_angle>-1.5708</min_angle>
+              <max_angle>1.5708</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>80</max>
+            <resolution>0.02</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+          <visibility_mask>0x01</visibility_mask>
+        </ray>
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+      </sensor>
+    </link>
+  </model>
+</sdf>

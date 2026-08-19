@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sdf version="1.10">
+  <!-- Unity presentation geometry scale=0.18 -->
+  <model name="sim332_friendly_ship">
+    <pose>0 0 0.09 0 0 0</pose>
+    <link name="hull">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>850</mass>
+        <inertia>
+          <ixx>1350</ixx>
+          <iyy>6900</iyy>
+          <izz>7800</izz>
+        </inertia>
+      </inertial>
+      <!-- Geometry mirrors SimulationBootstrap.BuildFriendlyShip exactly. -->
+      <collision name="lower_hull_collision">
+        <pose>-0.054 0 0.045 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.43 0.846 0.18</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="upper_hull_collision">
+        <pose>-0.108 0 0.153 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.232 0.918 0.099</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="cabin_collision">
+        <pose>-0.378 0 0.405 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.756 0.639 0.342</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="lower_hull">
+        <pose>-0.054 0 0.045 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.43 0.846 0.18</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.369 0.01575 0.009 1</ambient>
+          <diffuse>0.82 0.035 0.02 1</diffuse>
+          <specular>0.164 0.164 0.164 1</specular>
+        </material>
+      </visual>
+      <visual name="upper_hull">
+        <pose>-0.108 0 0.153 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.232 0.918 0.099</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.441 0.2925 0.01125 1</ambient>
+          <diffuse>0.98 0.65 0.025 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
+        </material>
+      </visual>
+      <visual name="main_deck">
+        <pose>-0.126 0 0.2124 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.07 0.774 0.0324</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03375 0.036 0.03825 1</ambient>
+          <diffuse>0.075 0.08 0.085 1</diffuse>
+          <specular>0.23 0.23 0.23 1</specular>
+        </material>
+      </visual>
+      <visual name="cabin">
+        <pose>-0.378 0 0.405 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.756 0.639 0.342</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.441 0.2925 0.01125 1</ambient>
+          <diffuse>0.98 0.65 0.025 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
+        </material>
+      </visual>
+      <visual name="bridge_windows">
+        <pose>0.0054 0 0.459 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0144 0.522 0.117</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.01125 0.072 0.099 1</ambient>
+          <diffuse>0.025 0.16 0.22 1</diffuse>
+          <specular>0.604 0.604 0.604 1</specular>
+        </material>
+      </visual>
+      <visual name="roof">
+        <pose>-0.396 0 0.594 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.864 0.72 0.0396</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.369 0.01575 0.009 1</ambient>
+          <diffuse>0.82 0.035 0.02 1</diffuse>
+          <specular>0.164 0.164 0.164 1</specular>
+        </material>
+      </visual>
+      <visual name="mast">
+        <pose>-0.378 0 0.837 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0216</radius>
+            <length>0.468</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.03375 0.036 0.03825 1</ambient>
+          <diffuse>0.075 0.08 0.085 1</diffuse>
+          <specular>0.23 0.23 0.23 1</specular>
+        </material>
+      </visual>
+      <visual name="radar">
+        <pose>-0.378 0 1.035 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.396 0.0324 0.0216</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.441 0.2925 0.01125 1</ambient>
+          <diffuse>0.98 0.65 0.025 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
+        </material>
+      </visual>
+      <visual name="port_stripe">
+        <pose>-0.036 0.4356 0.1656 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.764 0.0144 0.063</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.441 0.2925 0.01125 1</ambient>
+          <diffuse>0.98 0.65 0.025 1</diffuse>
+        </material>
+      </visual>
+      <visual name="starboard_stripe">
+        <pose>-0.036 -0.4356 0.1656 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.764 0.0144 0.063</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.441 0.2925 0.01125 1</ambient>
+          <diffuse>0.98 0.65 0.025 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <plugin filename="libBoatWaveFollower.so" name="gz::sim::systems::BoatWaveFollower">
+      <mean_z>0.1404</mean_z>
+      <heave_amplitude>0.009</heave_amplitude>
+      <roll_amplitude>0.018</roll_amplitude>
+      <pitch_amplitude>0.015</pitch_amplitude>
+      <primary_frequency>0.9</primary_frequency>
+      <secondary_frequency>1.35</secondary_frequency>
+      <wave_number_x>0.24</wave_number_x>
+      <wave_number_y>0.17</wave_number_y>
+      <velocity_topic>cmd_vel</velocity_topic>
+    </plugin>
+  </model>
+</sdf>

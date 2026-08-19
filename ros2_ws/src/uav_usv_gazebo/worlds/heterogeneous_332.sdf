@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="heterogeneous_332">
+    <gui fullscreen="0">
+      <plugin filename="MinimalScene" name="3D View">
+        <gz-gui><title>3D View</title><property type="bool" key="showTitleBar">false</property><property type="string" key="state">docked</property></gz-gui>
+        <engine>ogre2</engine><scene>scene</scene>
+        <ambient_light>0.75 0.78 0.82</ambient_light>
+        <background_color>0.82 0.9 0.96</background_color>
+        <!-- Unity comparison composition after its 0.18 presentation scale. -->
+        <camera_pose>-34.2 -81.9 8.64 0 0.217 0.974</camera_pose>
+        <camera_clip><near>0.15</near><far>3000</far></camera_clip>
+      </plugin>
+      <!-- Keep helper plugins functional without docking their documentation
+           cards over the right third of the 3-D view. -->
+      <plugin filename="GzSceneManager" name="Scene Manager"><gz-gui><property key="state" type="string">floating</property><property key="width" type="double">5</property><property key="height" type="double">5</property><property key="showTitleBar" type="bool">false</property></gz-gui></plugin>
+      <plugin filename="InteractiveViewControl" name="Interactive view control"><gz-gui><property key="state" type="string">floating</property><property key="width" type="double">5</property><property key="height" type="double">5</property><property key="showTitleBar" type="bool">false</property></gz-gui></plugin>
+      <plugin filename="CameraTracking" name="Camera Tracking"><gz-gui><property key="state" type="string">floating</property><property key="width" type="double">5</property><property key="height" type="double">5</property><property key="showTitleBar" type="bool">false</property></gz-gui></plugin>
+      <plugin filename="EntityContextMenuPlugin" name="Entity context menu"><gz-gui><property key="state" type="string">floating</property><property key="width" type="double">5</property><property key="height" type="double">5</property><property key="showTitleBar" type="bool">false</property></gz-gui></plugin>
+      <plugin filename="WorldControl" name="World control">
+        <gz-gui><property type="bool" key="showTitleBar">false</property><property type="bool" key="resizable">false</property><property type="double" key="height">72</property><property type="double" key="width">121</property><property type="double" key="z">1</property><property type="string" key="state">floating</property><anchors target="3D View"><line own="left" target="left"/><line own="bottom" target="bottom"/></anchors></gz-gui>
+        <play_pause>true</play_pause><step>true</step><start_paused>false</start_paused>
+      </plugin>
+    </gui>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"><render_engine>ogre2</render_engine></plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-air-pressure-system" name="gz::sim::systems::AirPressure"/>
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer"/>
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat"/>
+    <physics type="ode"><max_step_size>0.004</max_step_size><real_time_factor>1</real_time_factor><real_time_update_rate>250</real_time_update_rate></physics>
+    <gravity>0 0 -9.8</gravity>
+    <scene><grid>false</grid><ambient>0.75 0.78 0.82 1</ambient><background>0.82 0.9 0.96 1</background><shadows>true</shadows></scene>
+    <spherical_coordinates><surface_model>EARTH_WGS84</surface_model><world_frame_orientation>ENU</world_frame_orientation><latitude_deg>47.397971057728974</latitude_deg><longitude_deg>8.5461637398001464</longitude_deg><elevation>0</elevation><heading_deg>0</heading_deg></spherical_coordinates>
+
+    <!-- Match fleet_dynamic_capture: one flat support surface plus waves. -->
+    <model name="ocean_plane"><static>true</static><link name="ocean_link">
+      <visual name="ocean_visual"><pose>0 0 -0.02 0 0 0</pose><geometry><plane><normal>0 0 1</normal><size>2800 2600</size></plane></geometry>
+        <material><ambient>0 0.08 0.16 0.48</ambient><diffuse>0 0.2 0.34 0.48</diffuse><specular>0.05 0.08 0.1 1</specular></material></visual>
+      <collision name="ocean_collision"><geometry><plane><normal>0 0 1</normal><size>2800 2600</size></plane></geometry></collision>
+    </link></model>
+    <include><uri>model://waves</uri><name>waves</name><pose>0 0 0.015 0 0 0</pose></include>
+
+    <!-- Same Catalina transform used by Unity before its 0.18 presentation transform. -->
+    <include><uri>model://catalina_island</uri><name>catalina_island_terrain</name><pose>0 0 -0.144 0 0 0</pose></include>
+    <include><uri>model://shore_collision_boundary</uri><name>shore_collision_boundary</name><pose>0 0 0 0 0 0</pose></include>
+    <include><uri>model://sim332_island_uav_base</uri><name>island_uav_base</name><pose>-13.5 -38.7 0 0 0 0.559</pose></include>
+    <include><uri>model://mountain_shore_command_base</uri><name>shore_command_base</name><pose>-6.3 -34.2 3.15 0 0 0.559</pose></include>
+
+    <!-- Display IDs: UAV_01, UAV_02, UAV_03. Lower-case entity IDs preserve
+         the existing PX4 model binding and ROS namespace convention. -->
+    <include><uri>model://x500_mono_cam_down</uri><name>uav_01</name><pose>-15.6348 -40.0374 3.53210004 0 0 0.559</pose></include>
+    <include><uri>model://x500_mono_cam_down</uri><name>uav_02</name><pose>-13.5 -38.7 3.53210004 0 0 0.559</pose></include>
+    <include><uri>model://x500_mono_cam_down</uri><name>uav_03</name><pose>-11.3652 -37.3626 3.53210004 0 0 0.559</pose></include>
+
+    <!-- Exact initial positions produced by local Unity's PresentationEnu(). -->
+    <include><uri>model://sim332_usv_blue</uri><name>usv_01</name><pose>-21.6 -54.9 0 0 0 0.10</pose></include>
+    <include><uri>model://sim332_usv_green</uri><name>usv_02</name><pose>-13.5 -57.6 0 0 0 0.05</pose></include>
+    <include><uri>model://sim332_usv_cyan</uri><name>usv_03</name><pose>-5.4 -54.9 0 0 0 -0.05</pose></include>
+
+    <include><uri>model://sim332_friendly_ship</uri><name>friendly_ship</name><pose>-27 -63.9 0 0 0 0.25</pose></include>
+    <include><uri>model://sim332_enemy_ship</uri><name>enemy_ship</name><pose>-14.4 -62.1 0 0 0 2.60</pose></include>
+
+    <light name="sun" type="directional"><pose>0 0 100 0 0 0</pose><cast_shadows>true</cast_shadows><intensity>1.1</intensity><direction>-0.35 0.2 -0.92</direction><diffuse>0.92 0.92 0.88 1</diffuse><specular>0.25 0.25 0.25 1</specular></light>
+  </world>
+</sdf>
